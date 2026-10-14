@@ -1,0 +1,11 @@
+export function openLibrary() {
+ return new Promise((resolve,reject)=>{const request=indexedDB.open('groovebox-library',1);request.onupgradeneeded=()=>{const db=request.result;db.createObjectStore('state');db.createObjectStore('projects',{keyPath:'id'});};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);request.onblocked=()=>reject(new Error('请关闭其他 Groovebox 页面后重试'));});
+}
+export function getRecord(db,store,key){return new Promise((resolve,reject)=>{const tx=db.transaction(store,'readonly'),r=tx.objectStore(store).get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
+export function listProjects(db){return new Promise((resolve,reject)=>{const tx=db.transaction('projects','readonly'),r=tx.objectStore('projects').getAll();r.onsuccess=()=>resolve(r.result.sort((a,b)=>b.updatedAt-a.updatedAt));r.onerror=()=>reject(r.error);});}
+export function deleteProject(db,id){return new Promise((resolve,reject)=>{const tx=db.transaction(['projects','state'],'readwrite');tx.objectStore('projects').delete(id);const r=tx.objectStore('state').get('activeId');r.onsuccess=()=>{if(r.result===id)tx.objectStore('state').put(null,'activeId');};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});}
+export function signature(p){return JSON.stringify({...p,pattern:0,tracks:p.tracks.map(({steps,...t})=>t),samples:Object.fromEntries(Object.entries(p.samples).map(([id,s])=>[id,{name:s.name,length:s.data.length}]))});}
+export function saveWorking(db,p,activeId,preserveBackup=false){
+ const copy=structuredClone(p),stamp=Date.now(),sig=signature(copy);
+ return new Promise((resolve,reject)=>{const tx=db.transaction(['state','projects'],'readwrite'),state=tx.objectStore('state'),r=state.get('working');r.onsuccess=()=>{const previous=r.result;if(previous&&!preserveBackup&&previous.signature!==sig)state.put(previous,'backup');state.put({project:copy,signature:sig,updatedAt:stamp},'working');state.put(activeId,'activeId');if(activeId)tx.objectStore('projects').put({id:activeId,name:copy.name,updatedAt:stamp,project:copy});};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});
+}
