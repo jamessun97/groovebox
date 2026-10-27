@@ -1,8 +1,16 @@
-# Groovebox · 节奏工作台
+# Groovebox Studio 04 · 节奏工作台
 
 中文浏览器音乐工作台，使用原生 JavaScript 和 Web Audio，无需安装依赖或构建。
 
 在线版本：https://groovebox-studio-james.dkoeo.chatgpt.site/
+
+## 本阶段更新
+
+- 新增 Dub、Garage、Electro 原创预设，共 9 个风格预设。
+- 声部音符与表现跨段落复制粘贴、人性化力度、整体八度移调与点击测速。
+- 12 篇中文资料，9 个可载入练习；搜索、分类、收藏与已读进度。
+- 延伸资料：Ableton Learning Music、Learning Synths 与 MDN Web Audio；链接核对于 2026-10-27。
+- 沿用原有工程格式，工程与学习进度保存在当前浏览器。
 
 ## 功能
 
@@ -47,8 +55,11 @@ python -m http.server 8765 --bind 127.0.0.1 --directory dist
 | `dist/audio.js` | 音频合成、采样、调度、效果器与 WAV 渲染 |
 | `dist/app.js` | 音序器、混音与演奏控制 |
 | `dist/stage3.js` | 钢琴卷帘、音符表现、采样与作品库交互 |
+| `dist/stage4.js` | 创作快捷工具、资料检索、学习进度与练习 |
 | `dist/storage.js` | IndexedDB 自动保存、备份与作品库 |
 | `Groovebox.html` | 可直接打开的完整离线版 |
 | `.openai/hosting.json` | 现有 Sites 静态部署配置 |
 
 当前版本已验证钢琴卷帘编辑、采样裁切与反向播放、大采样跨浏览器重启恢复、自动备份恢复、实际音频输出、WAV 下载，以及 320／390／768 像素宽度布局。
+
+离线版重新生成：在仓库根目录运行 `python scripts/build-offline.py`。无需第三方 Python 包。
